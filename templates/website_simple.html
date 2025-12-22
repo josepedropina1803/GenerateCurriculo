@@ -12,8 +12,9 @@
         }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
+            --primary-color: {{ color_primary|default('#2c3e50') }};
+            --secondary-color: {{ color_secondary|default('#3498db') }};
+            --color-gradient: {{ color_gradient|default('linear-gradient(135deg, #2c3e50 0%, #3498db 100%)') }};
             --accent-color: #e74c3c;
             --text-color: #333;
             --text-light: #666;
@@ -32,15 +33,177 @@
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: var(--color-gradient);
             color: var(--white);
             padding: 80px 20px;
             text-align: center;
-            min-height: 400px;
+            min-height: 450px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--white);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .share-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            color: var(--primary-color);
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 2px solid transparent;
+        }
+
+        .share-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+            border-color: var(--secondary-color);
+        }
+
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .share-modal.active {
+            display: flex;
+        }
+
+        .share-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .share-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .share-link-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .share-link-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: var(--bg-color);
+        }
+
+        .copy-button {
+            background: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .copy-button.copied {
+            background: #27ae60;
+        }
+
+        .share-social {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .social-button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .social-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .social-button.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .social-button.linkedin {
+            background: #0077B5;
+            color: white;
+        }
+
+        .social-button.email {
+            background: #EA4335;
+            color: white;
+        }
+
+        .close-modal {
+            background: #e0e0e0;
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .close-modal:hover {
+            background: #d0d0d0;
         }
 
         .hero h1 {
@@ -305,6 +468,21 @@
             .skills-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
+
+            .share-button {
+                top: 10px;
+                right: 10px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .share-link-container {
+                flex-direction: column;
+            }
+
+            .share-social {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Print Styles */
@@ -327,8 +505,44 @@
     </style>
 </head>
 <body>
+    <!-- Botão de Partilha -->
+    <button class="share-button" onclick="openShareModal()">
+        🔗 Partilhar
+    </button>
+
+    <!-- Modal de Partilha -->
+    <div class="share-modal" id="shareModal" onclick="closeShareModal(event)">
+        <div class="share-content" onclick="event.stopPropagation()">
+            <h3>Partilhar Currículo</h3>
+
+            <div class="share-link-container">
+                <input type="text" class="share-link-input" id="shareLink" readonly value="">
+                <button class="copy-button" id="copyButton" onclick="copyLink()">
+                    📋 Copiar
+                </button>
+            </div>
+
+            <div class="share-social">
+                <a href="#" class="social-button whatsapp" id="whatsappShare" target="_blank">
+                    📱 WhatsApp
+                </a>
+                <a href="#" class="social-button linkedin" id="linkedinShare" target="_blank">
+                    💼 LinkedIn
+                </a>
+                <a href="#" class="social-button email" id="emailShare">
+                    ✉️ Email
+                </a>
+            </div>
+
+            <button class="close-modal" onclick="closeShareModal()">Fechar</button>
+        </div>
+    </div>
+
     <!-- Hero Section -->
     <header class="hero">
+        {% if profile_photo %}
+        <img src="{{ url_for('uploaded_photo', filename=profile_photo.split('/')[-1]) }}" alt="{{ full_name }}" class="profile-photo">
+        {% endif %}
         <h1>{{ full_name|default('Nome Profissional') }}</h1>
         <p class="subtitle">{{ professional_title|default('Título Profissional') }}</p>
 
@@ -468,5 +682,96 @@
     <footer>
         <p>&copy; {{ current_year|default(2024) }} {{ full_name|default('') }}. Todos os direitos reservados.</p>
     </footer>
+
+    <script>
+        // URL atual da página
+        const pageUrl = window.location.href;
+        const pageTitle = '{{ full_name|default("Currículo Profissional") }} - {{ professional_title|default("") }}';
+
+        // Função para abrir modal de partilha
+        function openShareModal() {
+            const modal = document.getElementById('shareModal');
+            const shareLink = document.getElementById('shareLink');
+
+            shareLink.value = pageUrl;
+            modal.classList.add('active');
+
+            // Atualiza links de partilha
+            updateShareLinks();
+        }
+
+        // Função para fechar modal de partilha
+        function closeShareModal(event) {
+            const modal = document.getElementById('shareModal');
+            if (!event || event.target === modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Função para copiar link
+        async function copyLink() {
+            const shareLink = document.getElementById('shareLink');
+            const copyButton = document.getElementById('copyButton');
+
+            try {
+                await navigator.clipboard.writeText(shareLink.value);
+
+                // Feedback visual
+                copyButton.textContent = '✓ Copiado!';
+                copyButton.classList.add('copied');
+
+                setTimeout(() => {
+                    copyButton.textContent = '📋 Copiar';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                // Fallback para navegadores antigos
+                shareLink.select();
+                document.execCommand('copy');
+
+                copyButton.textContent = '✓ Copiado!';
+                copyButton.classList.add('copied');
+
+                setTimeout(() => {
+                    copyButton.textContent = '📋 Copiar';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        // Atualiza links de redes sociais
+        function updateShareLinks() {
+            const encodedUrl = encodeURIComponent(pageUrl);
+            const encodedTitle = encodeURIComponent(pageTitle);
+
+            // WhatsApp
+            const whatsappLink = document.getElementById('whatsappShare');
+            whatsappLink.href = `https://wa.me/?text=${encodedTitle}%20-%20${encodedUrl}`;
+
+            // LinkedIn
+            const linkedinLink = document.getElementById('linkedinShare');
+            linkedinLink.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+
+            // Email
+            const emailLink = document.getElementById('emailShare');
+            emailLink.href = `mailto:?subject=${encodedTitle}&body=Confira este currículo profissional: ${encodedUrl}`;
+        }
+
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeShareModal();
+            }
+        });
+
+        // Ocultar botão de partilha ao imprimir
+        window.addEventListener('beforeprint', function() {
+            document.querySelector('.share-button').style.display = 'none';
+        });
+
+        window.addEventListener('afterprint', function() {
+            document.querySelector('.share-button').style.display = 'flex';
+        });
+    </script>
 </body>
 </html>

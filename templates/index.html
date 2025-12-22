@@ -97,6 +97,46 @@
                     <small>Tamanho máximo: 16MB</small>
                 </div>
 
+                <div class="form-group">
+                    <label for="profile_photo">Foto de Perfil (opcional):</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="profile_photo" name="profile_photo" accept="image/png,image/jpeg,image/jpg,image/webp">
+                        <span class="file-input-text-photo">Escolher foto...</span>
+                    </div>
+                    <small>Formatos: JPG, PNG, WEBP (máx. 5MB)</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Esquema de Cores (opcional):</label>
+                    <div class="color-schemes">
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="blue">
+                            <span class="color-preview" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);"></span>
+                            <span>Azul Profissional</span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="green">
+                            <span class="color-preview" style="background: linear-gradient(135deg, #1e3a2e 0%, #27ae60 100%);"></span>
+                            <span>Verde Corporativo</span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="purple">
+                            <span class="color-preview" style="background: linear-gradient(135deg, #4a148c 0%, #9c27b0 100%);"></span>
+                            <span>Roxo Criativo</span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="orange">
+                            <span class="color-preview" style="background: linear-gradient(135deg, #d84315 0%, #ff5722 100%);"></span>
+                            <span>Laranja Dinâmico</span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="teal">
+                            <span class="color-preview" style="background: linear-gradient(135deg, #004d40 0%, #009688 100%);"></span>
+                            <span>Teal Moderno</span>
+                        </label>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">
                     📤 Carregar Currículo
                 </button>
@@ -145,14 +185,81 @@
         <p>Gerador de Currículo Web &copy; 2025</p>
     </footer>
 
+    <style>
+        .color-schemes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .color-option:hover {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .color-option input[type="radio"] {
+            display: none;
+        }
+
+        .color-option input[type="radio"]:checked + .color-preview {
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+            transform: scale(1.1);
+        }
+
+        .color-option input[type="radio"]:checked ~ span {
+            font-weight: 600;
+        }
+
+        .color-option:has(input[type="radio"]:checked) {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .color-schemes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
     <script>
-        // Atualiza o texto do input de ficheiro
+        // Atualiza o texto do input de ficheiro PDF
         const fileInput = document.getElementById('pdf');
         const fileInputText = document.querySelector('.file-input-text');
 
         fileInput.addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || 'Escolher ficheiro...';
             fileInputText.textContent = fileName;
+        });
+
+        // Atualiza o texto do input de foto de perfil
+        const photoInput = document.getElementById('profile_photo');
+        const photoInputText = document.querySelector('.file-input-text-photo');
+
+        photoInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Escolher foto...';
+            photoInputText.textContent = fileName;
         });
     </script>
 </body>
