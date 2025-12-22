@@ -16,3 +16,4 @@ data/
 
 # Configuration with credentials
 config.json
+.env

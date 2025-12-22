@@ -1,174 +1,302 @@
-# Gerador de Currículo Web
+# 📄 Gerador de Website Curricular com IA
 
-Aplicação web Flask para carregar, armazenar e visualizar currículos em PDF.
+Aplicação Flask que converte currículos PDF em websites profissionais personalizados usando IA (LangGraph + Groq/Ollama).
 
-## Funcionalidades
+![Version](https://img.shields.io/badge/version-2.0-blue)
+![Python](https://img.shields.io/badge/python-3.11+-green)
+![License](https://img.shields.io/badge/license-MIT-orange)
 
-- Upload de currículos em formato PDF
-- Armazenamento seguro de ficheiros e metadados
-- Visualização de PDFs no navegador
-- Lista de todos os currículos carregados
-- Download de PDFs
-- Eliminar currículos
-- Interface moderna e responsiva
-- Suporte para ecrã completo
+---
 
-## Estrutura do Projeto
+## ✨ Funcionalidades
 
-```
-GenerateCurriculo/
-├── app.py                  # Aplicação Flask principal
-├── templates/
-│   ├── index.html         # Página de upload e listagem
-│   └── viewer.html        # Visualizador de PDF
-├── static/
-│   └── css/
-│       └── style.css      # Estilos da aplicação
-├── uploads/               # PDFs carregados (criado automaticamente)
-├── data/                  # Metadados em JSON (criado automaticamente)
-├── requirements.txt       # Dependências Python
-└── README.md             # Este ficheiro
-```
+### 🤖 Processamento com IA
+- **Extração inteligente** de texto de PDFs com correção de acentos
+- **Análise automática** com LangGraph workflow
+- **Geração de resumos** profissionais para cada secção
+- **LLM flexível**: Ollama (local) ou Groq (nuvem, gratuito)
 
-## Requisitos
+### 🎨 Personalização
+- **5 esquemas de cores** profissionais
+- **Upload de foto de perfil** (opcional)
+- **Website SPA** responsivo e moderno
+- **Design limpo** sem navbar, focado em conteúdo
 
-- Python 3.8+
-- pip (gestor de pacotes Python)
+### 🔗 Partilha
+- **Botão de partilha** com link único
+- **Partilha direta** via WhatsApp, LinkedIn, Email
+- **Copiar link** com feedback visual
+- **Acesso público** sem necessidade de login
 
-## Instalação
+### 🔐 Segurança
+- **Sistema de autenticação** configurável
+- **Tokens únicos** para cada currículo
+- **Validação de arquivos** e sanitização
+- **HTTPS** pronto (em produção)
 
-1. Clone ou descarregue o repositório:
+---
+
+## 🚀 Deploy Gratuito
+
+**Veja [DEPLOY.md](DEPLOY.md)** para instruções completas de deploy no Render com:
+- ✅ Domínio gratuito (.onrender.com)
+- ✅ HTTPS automático
+- ✅ Storage persistente
+- ✅ Deploy automático via GitHub
+
+---
+
+## 🏠 Instalação Local
+
+### Requisitos
+
+- Python 3.11+
+- Ollama (para desenvolvimento local) ou Groq API Key
+
+### Passo 1: Clone o repositório
+
 ```bash
+git clone https://github.com/josepedropina1803/GenerateCurriculo.git
 cd GenerateCurriculo
 ```
 
-2. Crie e ative um ambiente virtual (opcional mas recomendado):
-```bash
-python -m venv .venv
-source .venv/bin/activate  # No Windows: .venv\Scripts\activate
-```
+### Passo 2: Instale dependências
 
-3. Instale as dependências:
 ```bash
+# Criar ambiente virtual
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Instalar pacotes
 pip install -r requirements.txt
 ```
 
-## Como Usar
+### Passo 3: Configure Ollama (opcional para local)
 
-1. Inicie o servidor Flask:
+```bash
+# Instalar Ollama
+# macOS/Linux: https://ollama.com/download
+# Windows: https://ollama.com/download/windows
+
+# Baixar modelo
+ollama pull llama3
+```
+
+**OU** use Groq (gratuito):
+
+```bash
+# Criar arquivo .env
+cp .env.example .env
+
+# Editar .env e adicionar:
+# GROQ_API_KEY=sua_chave_aqui
+# Obtenha em: https://console.groq.com
+```
+
+### Passo 4: Configure autenticação
+
+```bash
+# Copiar exemplo
+cp config.json.example config.json
+
+# Editar config.json
+# Altere username, password e secret_key
+```
+
+### Passo 5: Execute
+
 ```bash
 python app.py
 ```
 
-2. Abra o navegador e aceda a:
+Acesse: http://localhost:5001
+
+---
+
+## 📁 Estrutura do Projeto
+
 ```
-http://localhost:5000
+GenerateCurriculo/
+├── app.py                      # Aplicação Flask principal
+├── src/
+│   ├── workflow_langgraph.py   # Workflow de IA (LangGraph)
+│   ├── pdf_extractor.py        # Extração e normalização de PDFs
+│   └── ollama_ai.py           # (Legacy)
+├── templates/
+│   ├── index.html             # Dashboard de upload
+│   ├── login.html             # Autenticação
+│   ├── website_simple.html    # Template SPA do currículo
+│   └── viewer.html            # Visualizador de PDF
+├── static/css/
+│   └── style.css              # Estilos globais
+├── uploads/                   # PDFs e fotos (auto-criado)
+├── data/                      # Metadados JSON (auto-criado)
+├── requirements.txt           # Dependências Python
+├── render.yaml               # Configuração para Render
+├── DEPLOY.md                 # Guia de deploy
+└── README.md                 # Este arquivo
 ```
 
-3. Na página principal:
-   - Insira o seu nome
-   - Selecione um ficheiro PDF (máximo 16MB)
-   - Clique em "Carregar Currículo"
+---
 
-4. O PDF será automaticamente visualizado após o upload
+## 🎯 Como Usar
 
-5. Na página inicial, pode:
-   - Ver todos os currículos carregados
-   - Visualizar qualquer currículo
-   - Descarregar PDFs
-   - Eliminar currículos
+### 1. Login
+- Acesse a aplicação
+- Use credenciais do `config.json`
 
-## Funcionalidades Técnicas
+### 2. Upload de Currículo
+- Insira seu nome
+- Carregue PDF do currículo
+- (Opcional) Adicione foto de perfil
+- (Opcional) Escolha esquema de cores
 
-### Backend (Flask)
-- Validação de ficheiros (apenas PDFs)
-- Limite de tamanho de ficheiro (16MB)
-- Nomes de ficheiros únicos com timestamp
-- Armazenamento de metadados em JSON
-- Rotas para upload, visualização e eliminação
+### 3. Aguarde Processamento
+- IA extrai e analisa o currículo (30-60s)
+- Gera resumos profissionais
+- Cria website personalizado
+
+### 4. Visualize e Partilhe
+- Veja seu website curricular
+- Clique em "🔗 Partilhar"
+- Copie link ou partilhe em redes sociais
+
+---
+
+## 🛠️ Tecnologias
+
+### Backend
+- **Flask** - Framework web
+- **LangGraph** - Workflow de IA
+- **LangChain** - Integração com LLMs
+- **Groq/Ollama** - Modelos de linguagem
+- **pdfplumber** - Extração de PDFs
 
 ### Frontend
-- Design responsivo (funciona em mobile e desktop)
-- Visualizador de PDF integrado
-- Modo ecrã completo
-- Mensagens de feedback ao utilizador
-- Animações suaves
-- Gradiente moderno
+- **Vanilla JS** - Sem frameworks
+- **CSS3** - Design moderno
+- **Responsive** - Mobile-first
 
-### Segurança
-- Validação de extensão de ficheiros
-- Sanitização de nomes de ficheiros
-- Limite de tamanho de upload
-- Secret key para sessões Flask
+### Deploy
+- **Render** - Hosting gratuito
+- **Gunicorn** - WSGI server
+- **GitHub** - CI/CD automático
 
-## Personalização
+---
 
-### Alterar o limite de tamanho de ficheiro
+## 🎨 Esquemas de Cores
 
-No ficheiro `app.py`, linha 13:
-```python
-MAX_FILE_SIZE = 16 * 1024 * 1024  # Altere para o tamanho desejado em bytes
-```
+1. **Azul Profissional** (padrão) - #2c3e50 → #3498db
+2. **Verde Corporativo** - #1e3a2e → #27ae60
+3. **Roxo Criativo** - #4a148c → #9c27b0
+4. **Laranja Dinâmico** - #d84315 → #ff5722
+5. **Teal Moderno** - #004d40 → #009688
 
-### Alterar a porta do servidor
+---
 
-No ficheiro `app.py`, última linha:
-```python
-app.run(debug=True, host='0.0.0.0', port=5000)  # Altere 5000 para a porta desejada
-```
+## 🔧 Configuração
 
-### Personalizar cores
+### config.json
 
-Edite as variáveis CSS no ficheiro `static/css/style.css`:
-```css
-:root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    /* ... outras cores ... */
+```json
+{
+  "authentication": {
+    "users": [
+      {
+        "username": "admin",
+        "password": "sua_senha",
+        "name": "Administrador"
+      }
+    ]
+  },
+  "app": {
+    "secret_key": "chave_secreta_aleatoria",
+    "max_file_size_mb": 16,
+    "allowed_extensions": ["pdf"]
+  }
 }
 ```
 
-## Produção
+### Variáveis de Ambiente
 
-Para usar em produção, altere `app.py`:
-
-1. Desative o modo debug:
-```python
-app.run(debug=False, host='0.0.0.0', port=5000)
-```
-
-2. Altere a secret key para algo seguro:
-```python
-app.secret_key = 'sua-chave-secreta-muito-forte-aqui'
-```
-
-3. Use um servidor WSGI como Gunicorn:
 ```bash
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
+# .env (opcional para Groq)
+GROQ_API_KEY=sua_chave_groq
 ```
 
-## Limitações Conhecidas
+---
 
-- Alguns navegadores podem não suportar visualização de PDFs inline
-- PDFs muito grandes podem demorar a carregar
-- Não há autenticação de utilizadores (todos podem ver todos os currículos)
+## 📊 Workflow de IA
 
-## Melhorias Futuras
+```
+PDF Upload
+    ↓
+[NODE 1] Extração de Texto
+    - pdfplumber
+    - Normalização de acentos
+    ↓
+[NODE 2] Análise e Resumos
+    - Identificação de secções
+    - Extração de dados
+    - Geração de resumos
+    ↓
+[NODE 3] Estrutura do Website
+    - Organização de conteúdo
+    - Aplicação de cores
+    - Preparação para renderização
+    ↓
+Website Gerado ✨
+```
 
-- Autenticação de utilizadores
-- Base de dados SQL em vez de JSON
-- Conversão de PDF para HTML/CSS
-- Pesquisa e filtros
-- Categorização de currículos
-- Miniaturas de PDFs
-- Upload múltiplo
-- Armazenamento em cloud (S3, etc.)
+---
 
-## Licença
+## 🐛 Problemas Conhecidos
 
-Projeto de uso livre.
+- Plano gratuito do Render "dorme" após 15min
+- Storage limitado a 1GB (gratuito)
+- PDFs com encoding especial podem ter problemas de acentos
 
-## Autor
+---
 
-Desenvolvido para facilitar o carregamento e visualização de currículos em formato web.
+## 🚧 Roadmap
+
+- [ ] Temas adicionais (minimalista, criativo, executivo)
+- [ ] Download do website como HTML estático
+- [ ] Edição manual dos resumos gerados
+- [ ] Suporte para múltiplos idiomas
+- [ ] Analytics de visualizações
+- [ ] Integração com LinkedIn API
+- [ ] Templates de website adicionais
+
+---
+
+## 📝 Licença
+
+MIT License - Use livremente!
+
+---
+
+## 👤 Autor
+
+**José Pedro Pina**
+GitHub: [@josepedropina1803](https://github.com/josepedropina1803)
+
+---
+
+## 🙏 Agradecimentos
+
+- [LangChain](https://langchain.com) - Framework de IA
+- [Groq](https://groq.com) - API gratuita e rápida
+- [Render](https://render.com) - Hosting gratuito
+- [Ollama](https://ollama.com) - LLMs locais
+
+---
+
+## 💡 Suporte
+
+Encontrou um bug? Tem uma sugestão?
+Abra uma [issue](https://github.com/josepedropina1803/GenerateCurriculo/issues)
+
+---
+
+**⭐ Se gostou do projeto, deixe uma estrela no GitHub!**

@@ -24,13 +24,28 @@ class ResumeWorkflowState(TypedDict):
 
 # === CONFIGURAÇÃO DO LLM ===
 def get_llm(temperature: float = 0.3):
-    """Retorna instância do ChatOllama"""
-    return ChatOllama(
-        model="llama3",
-        temperature=temperature,
-        base_url="http://localhost:11434",
-        format="json"
-    )
+    """Retorna instância do LLM (Ollama local ou Groq na nuvem)"""
+    import os
+
+    # Verifica se deve usar Groq (produção) ou Ollama (local)
+    groq_api_key = os.getenv('GROQ_API_KEY')
+
+    if groq_api_key:
+        # Usa Groq em produção
+        from langchain_groq import ChatGroq
+        return ChatGroq(
+            model="llama-3.1-70b-versatile",
+            temperature=temperature,
+            groq_api_key=groq_api_key
+        )
+    else:
+        # Usa Ollama localmente
+        return ChatOllama(
+            model="llama3",
+            temperature=temperature,
+            base_url="http://localhost:11434",
+            format="json"
+        )
 
 
 # === NODE 1: EXTRAÇÃO DE PDF ===
