@@ -1,0 +1,16 @@
+{
+  "authentication": {
+    "users": [
+      {
+        "username": "admin",
+        "password": "123",
+        "name": "Administrador"
+      }
+    ]
+  },
+  "app": {
+    "secret_key": "a8f5f167f44f4964e6c998dee827110c3b7d8b8f3e3b3f3c3d3e3f3a3b3c3d3e",
+    "max_file_size_mb": 16,
+    "allowed_extensions": ["pdf"]
+  }
+}

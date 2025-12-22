@@ -15,5 +15,5 @@ data/
 *.pdf
 
 # Configuration with credentials
-config.json
+
 .env

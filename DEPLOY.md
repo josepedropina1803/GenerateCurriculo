@@ -103,7 +103,7 @@ cat > config.json << 'EOF'
     "users": [
       {
         "username": "admin",
-        "password": "sua_senha_aqui",
+        "password": "123",
         "name": "Administrador"
       }
     ]
