@@ -173,7 +173,7 @@ def upload_file():
     access_token = generate_access_token()
 
     # === PROCESSAMENTO COM LANGGRAPH WORKFLOW ===
-    flash('🚀 Processando currículo com LangGraph... Aguarde 30-90 segundos.', 'info')
+    flash('🚀 Processando currículo com LangGraph... Aguarde 30-60 segundos.', 'info')
 
     # Processa com o workflow LangGraph
     workflow_result = process_resume_with_langgraph(filepath)
@@ -182,31 +182,29 @@ def upload_file():
         flash(f'❌ Erro no workflow: {workflow_result.get("error")}', 'error')
         # Fallback para dados básicos
         resume_data = {
-            'nome_completo': username,
-            'titulo_profissional': 'Profissional',
-            'experiencias': [],
-            'educacao': [],
-            'competencias': []
+            'full_name': username,
+            'professional_title': 'Profissional',
+            'about_summary': 'Profissional qualificado.',
+            'experience_summary': 'Experiência profissional.',
+            'education_summary': 'Formação académica.',
+            'skills_summary': 'Competências técnicas.',
+            'experience_items': [],
+            'education_items': [],
+            'skills': []
         }
-        sections = [
-            {"id": "home", "title": "Início", "icon": "🏠", "order": 1},
-            {"id": "sobre", "title": "Sobre", "icon": "👤", "order": 2},
-            {"id": "contacto", "title": "Contacto", "icon": "📧", "order": 3}
-        ]
     else:
-        # Extrai estrutura do website gerada pelo workflow
+        # Extrai dados do website gerado pelo workflow
         website_structure = workflow_result['website_structure']
         resume_data = website_structure.get('data', {})
-        sections = website_structure.get('sections', [])
 
         # Mostra avisos se houver
         if workflow_result.get('errors'):
             for error in workflow_result['errors']:
                 flash(f'⚠️ {error}', 'warning')
 
-    # Garante que nome_completo existe
-    if 'nome_completo' not in resume_data:
-        resume_data['nome_completo'] = username
+    # Garante que full_name existe
+    if 'full_name' not in resume_data or not resume_data['full_name']:
+        resume_data['full_name'] = username
 
     # Guarda metadados
     metadata = load_metadata()
@@ -217,8 +215,7 @@ def upload_file():
         'original_filename': filename,
         'upload_date': datetime.now().isoformat(),
         'access_token': access_token,
-        'resume_data': resume_data,  # Dados analisados pela AI
-        'sections': sections,  # Secções identificadas para navbar
+        'resume_data': resume_data,
         'processed': True
     }
     metadata.append(new_entry)
@@ -253,20 +250,11 @@ def website(token):
 
     # Extrai dados do currículo analisado
     resume_data = curriculo.get('resume_data', {})
-    sections = curriculo.get('sections', [])
 
     # Adiciona ano atual
     resume_data['current_year'] = datetime.now().year
 
-    # Define cores padrão se não existirem
-    if 'cores_tematicas' in resume_data:
-        resume_data['cor_primaria'] = resume_data['cores_tematicas'].get('primaria', '#2c3e50')
-        resume_data['cor_secundaria'] = resume_data['cores_tematicas'].get('secundaria', '#3498db')
-    else:
-        resume_data['cor_primaria'] = '#2c3e50'
-        resume_data['cor_secundaria'] = '#3498db'
-
-    return render_template('website_spa.html', sections=sections, **resume_data)
+    return render_template('website_simple.html', **resume_data)
 
 
 @app.route('/uploads/<filename>')

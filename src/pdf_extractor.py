@@ -3,6 +3,23 @@ Módulo para extração de texto de PDFs usando pdfplumber
 """
 import pdfplumber
 from typing import Dict, List
+import unicodedata
+
+
+def normalize_text(text: str) -> str:
+    """
+    Normaliza texto para corrigir problemas de encoding e acentos
+    """
+    if not text:
+        return text
+
+    # Normaliza unicode (converte caracteres compostos para forma canônica)
+    text = unicodedata.normalize('NFC', text)
+
+    # Remove caracteres de controle mantendo quebras de linha
+    text = ''.join(char for char in text if char == '\n' or not unicodedata.category(char).startswith('C'))
+
+    return text
 
 
 def extract_text_from_pdf(pdf_path: str) -> Dict[str, any]:
@@ -22,6 +39,8 @@ def extract_text_from_pdf(pdf_path: str) -> Dict[str, any]:
             for page in pdf.pages:
                 text = page.extract_text()
                 if text:
+                    # Normaliza o texto para corrigir problemas de acentos
+                    text = normalize_text(text)
                     pages_text.append(text)
 
             # Texto completo

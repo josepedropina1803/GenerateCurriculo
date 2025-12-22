@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ full_name|default('Currículo Profissional') }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .contact-info a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .contact-info a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Section */
+        .section {
+            background: var(--white);
+            margin: 30px auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 1s ease;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .section-summary {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        /* Items */
+        .item {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .item-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .item-subtitle {
+            font-size: 1rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .item-period {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .item-description {
+            color: var(--text-light);
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        /* Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .skill-tag {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Languages */
+        .languages-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+        }
+
+        .language-name {
+            font-weight: 600;
+        }
+
+        .language-level {
+            color: var(--text-light);
+        }
+
+        /* Certifications & Lists */
+        .simple-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .simple-list li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            color: var(--text-light);
+        }
+
+        .simple-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        /* Projects */
+        .project-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .project-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .project-description {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section {
+                padding: 25px 20px;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .item-header {
+                flex-direction: column;
+            }
+
+            .item-period {
+                margin-top: 5px;
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+
+            .hero {
+                background: var(--primary-color);
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>{{ full_name|default('Nome Profissional') }}</h1>
+        <p class="subtitle">{{ professional_title|default('Título Profissional') }}</p>
+
+        <div class="contact-info">
+            {% if email %}<a href="mailto:{{ email }}">✉ {{ email }}</a>{% endif %}
+            {% if phone %}<a href="tel:{{ phone }}">📱 {{ phone }}</a>{% endif %}
+            {% if location %}<span>📍 {{ location }}</span>{% endif %}
+            {% if linkedin %}<a href="{{ linkedin }}" target="_blank">🔗 LinkedIn</a>{% endif %}
+            {% if github %}<a href="{{ github }}" target="_blank">💻 GitHub</a>{% endif %}
+            {% if website %}<a href="{{ website }}" target="_blank">🌐 Website</a>{% endif %}
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- About Section -->
+        {% if about_summary %}
+        <section class="section">
+            <h2 class="section-title">Sobre</h2>
+            <p class="section-summary">{{ about_summary }}</p>
+        </section>
+        {% endif %}
+
+        <!-- Experience Section -->
+        {% if experience_summary or experience_items %}
+        <section class="section">
+            <h2 class="section-title">Experiência Profissional</h2>
+            {% if experience_summary %}
+            <p class="section-summary">{{ experience_summary }}</p>
+            {% endif %}
+
+            {% if experience_items %}
+            <div class="items-list">
+                {% for exp in experience_items %}
+                <div class="item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">{{ exp.position }}</div>
+                            <div class="item-subtitle">{{ exp.company }}</div>
+                        </div>
+                        <div class="item-period">{{ exp.period }}</div>
+                    </div>
+                    {% if exp.description %}
+                    <p class="item-description">{{ exp.description }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Education Section -->
+        {% if education_summary or education_items %}
+        <section class="section">
+            <h2 class="section-title">Formação Académica</h2>
+            {% if education_summary %}
+            <p class="section-summary">{{ education_summary }}</p>
+            {% endif %}
+
+            {% if education_items %}
+            <div class="items-list">
+                {% for edu in education_items %}
+                <div class="item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">{{ edu.degree }}</div>
+                            <div class="item-subtitle">{{ edu.institution }}</div>
+                        </div>
+                        <div class="item-period">{{ edu.period }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Skills Section -->
+        {% if skills_summary or skills %}
+        <section class="section">
+            <h2 class="section-title">Competências</h2>
+            {% if skills_summary %}
+            <p class="section-summary">{{ skills_summary }}</p>
+            {% endif %}
+
+            {% if skills %}
+            <div class="skills-grid">
+                {% for skill in skills %}
+                <div class="skill-tag">{{ skill }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Languages Section -->
+        {% if languages %}
+        <section class="section">
+            <h2 class="section-title">Idiomas</h2>
+            <div class="languages-list">
+                {% for lang in languages %}
+                <div class="language-item">
+                    <span class="language-name">{{ lang.language }}</span>
+                    <span class="language-level">{{ lang.level }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Projects Section -->
+        {% if projects %}
+        <section class="section">
+            <h2 class="section-title">Projetos</h2>
+            {% for project in projects %}
+            <div class="project-item">
+                <div class="project-name">{{ project.name }}</div>
+                <p class="project-description">{{ project.description }}</p>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <!-- Certifications Section -->
+        {% if certifications %}
+        <section class="section">
+            <h2 class="section-title">Certificações</h2>
+            <ul class="simple-list">
+                {% for cert in certifications %}
+                <li>{{ cert }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>&copy; {{ current_year|default(2024) }} {{ full_name|default('') }}. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
