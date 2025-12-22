@@ -34,7 +34,7 @@ def get_llm(temperature: float = 0.3):
         # Usa Groq em produção
         from langchain_groq import ChatGroq
         return ChatGroq(
-            model="llama-3.1-70b-versatile",
+            model="llama-3.3-70b-versatile",  # Modelo atualizado
             temperature=temperature,
             groq_api_key=groq_api_key
         )

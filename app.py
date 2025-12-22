@@ -107,6 +107,8 @@ def load_metadata():
 
 def save_metadata(data):
     """Guarda metadados dos currículos"""
+    # Garante que o diretório existe
+    os.makedirs(DATA_FOLDER, exist_ok=True)
     with open(METADATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
