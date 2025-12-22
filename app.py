@@ -181,112 +181,145 @@ def index():
 @login_required
 def upload_file():
     """Processa o upload do PDF"""
-    # Verifica se o ficheiro foi enviado
-    if 'pdf' not in request.files:
-        flash('Nenhum ficheiro foi selecionado', 'error')
-        return redirect(url_for('index'))
+    try:
+        print("=== INÍCIO DO UPLOAD ===")
 
-    file = request.files['pdf']
-    username = request.form.get('username', '').strip()
+        # Verifica se o ficheiro foi enviado
+        if 'pdf' not in request.files:
+            flash('Nenhum ficheiro foi selecionado', 'error')
+            return redirect(url_for('index'))
 
-    # Validações
-    if file.filename == '':
-        flash('Nenhum ficheiro foi selecionado', 'error')
-        return redirect(url_for('index'))
+        file = request.files['pdf']
+        username = request.form.get('username', '').strip()
+        print(f"[DEBUG] Username: {username}, File: {file.filename}")
 
-    if not username:
-        flash('Por favor, insira o seu nome', 'error')
-        return redirect(url_for('index'))
+        # Validações
+        if file.filename == '':
+            flash('Nenhum ficheiro foi selecionado', 'error')
+            return redirect(url_for('index'))
 
-    if not allowed_file(file.filename):
-        flash('Apenas ficheiros PDF são permitidos', 'error')
-        return redirect(url_for('index'))
+        if not username:
+            flash('Por favor, insira o seu nome', 'error')
+            return redirect(url_for('index'))
 
-    # Guarda o ficheiro PDF
-    filename = secure_filename(file.filename)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    unique_filename = f"{timestamp}_{filename}"
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-    file.save(filepath)
+        if not allowed_file(file.filename):
+            flash('Apenas ficheiros PDF são permitidos', 'error')
+            return redirect(url_for('index'))
 
-    # Processa foto de perfil (opcional)
-    profile_photo_path = None
-    if 'profile_photo' in request.files:
-        photo = request.files['profile_photo']
-        if photo and photo.filename and allowed_image(photo.filename):
-            photo_filename = secure_filename(photo.filename)
-            unique_photo = f"{timestamp}_{photo_filename}"
-            profile_photo_path = os.path.join(app.config['PHOTOS_FOLDER'], unique_photo)
-            photo.save(profile_photo_path)
-            # Caminho relativo para o template
-            profile_photo_path = f"photos/{unique_photo}"
+        # Guarda o ficheiro PDF
+        print("[DEBUG] Salvando PDF...")
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        unique_filename = f"{timestamp}_{filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
 
-    # Processa esquema de cores (opcional)
-    color_scheme_name = request.form.get('color_scheme', 'blue')
-    color_scheme = get_color_scheme(color_scheme_name)
+        # Garante que diretório existe
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(filepath)
+        print(f"[DEBUG] PDF salvo em: {filepath}")
 
-    # Gera token de acesso único
-    access_token = generate_access_token()
+        # Processa foto de perfil (opcional)
+        profile_photo_path = None
+        try:
+            if 'profile_photo' in request.files:
+                photo = request.files['profile_photo']
+                if photo and photo.filename and allowed_image(photo.filename):
+                    print("[DEBUG] Salvando foto de perfil...")
+                    photo_filename = secure_filename(photo.filename)
+                    unique_photo = f"{timestamp}_{photo_filename}"
 
-    # === PROCESSAMENTO COM LANGGRAPH WORKFLOW ===
-    flash('🚀 Processando currículo com LangGraph... Aguarde 30-60 segundos.', 'info')
+                    # Garante que diretório existe
+                    os.makedirs(app.config['PHOTOS_FOLDER'], exist_ok=True)
 
-    # Processa com o workflow LangGraph
-    workflow_result = process_resume_with_langgraph(filepath)
+                    photo_path_full = os.path.join(app.config['PHOTOS_FOLDER'], unique_photo)
+                    photo.save(photo_path_full)
+                    # Caminho relativo para o template
+                    profile_photo_path = f"photos/{unique_photo}"
+                    print(f"[DEBUG] Foto salva: {profile_photo_path}")
+        except Exception as e:
+            print(f"[WARNING] Erro ao salvar foto (continuando): {e}")
 
-    if not workflow_result['success']:
-        flash(f'❌ Erro no workflow: {workflow_result.get("error")}', 'error')
-        # Fallback para dados básicos
-        resume_data = {
-            'full_name': username,
-            'professional_title': 'Profissional',
-            'about_summary': 'Profissional qualificado.',
-            'experience_summary': 'Experiência profissional.',
-            'education_summary': 'Formação académica.',
-            'skills_summary': 'Competências técnicas.',
-            'experience_items': [],
-            'education_items': [],
-            'skills': []
+        # Processa esquema de cores (opcional)
+        color_scheme_name = request.form.get('color_scheme', 'blue')
+        color_scheme = get_color_scheme(color_scheme_name)
+        print(f"[DEBUG] Esquema de cores: {color_scheme_name}")
+
+        # Gera token de acesso único
+        access_token = generate_access_token()
+
+        # === PROCESSAMENTO COM LANGGRAPH WORKFLOW ===
+        flash('🚀 Processando currículo com LangGraph... Aguarde 30-60 segundos.', 'info')
+        print("[DEBUG] Iniciando workflow...")
+
+        # Processa com o workflow LangGraph
+        workflow_result = process_resume_with_langgraph(filepath)
+        print(f"[DEBUG] Workflow concluído: {workflow_result.get('success')}")
+
+        if not workflow_result['success']:
+            flash(f'❌ Erro no workflow: {workflow_result.get("error")}', 'error')
+            # Fallback para dados básicos
+            resume_data = {
+                'full_name': username,
+                'professional_title': 'Profissional',
+                'about_summary': 'Profissional qualificado.',
+                'experience_summary': 'Experiência profissional.',
+                'education_summary': 'Formação académica.',
+                'skills_summary': 'Competências técnicas.',
+                'experience_items': [],
+                'education_items': [],
+                'skills': []
+            }
+        else:
+            # Extrai dados do website gerado pelo workflow
+            website_structure = workflow_result['website_structure']
+            resume_data = website_structure.get('data', {})
+
+            # Mostra avisos se houver
+            if workflow_result.get('errors'):
+                for error in workflow_result['errors']:
+                    flash(f'⚠️ {error}', 'warning')
+
+        # Garante que full_name existe
+        if 'full_name' not in resume_data or not resume_data['full_name']:
+            resume_data['full_name'] = username
+
+        # Adiciona foto de perfil e cores aos dados
+        resume_data['profile_photo'] = profile_photo_path
+        resume_data['color_primary'] = color_scheme['primary']
+        resume_data['color_secondary'] = color_scheme['secondary']
+        resume_data['color_gradient'] = color_scheme['gradient']
+
+        # Guarda metadados
+        print("[DEBUG] Salvando metadados...")
+        metadata = load_metadata()
+        new_entry = {
+            'id': len(metadata) + 1,
+            'username': username,
+            'filename': unique_filename,
+            'original_filename': filename,
+            'upload_date': datetime.now().isoformat(),
+            'access_token': access_token,
+            'resume_data': resume_data,
+            'profile_photo': profile_photo_path,
+            'color_scheme': color_scheme_name,
+            'processed': True
         }
-    else:
-        # Extrai dados do website gerado pelo workflow
-        website_structure = workflow_result['website_structure']
-        resume_data = website_structure.get('data', {})
+        metadata.append(new_entry)
+        save_metadata(metadata)
+        print("[DEBUG] Metadados salvos")
 
-        # Mostra avisos se houver
-        if workflow_result.get('errors'):
-            for error in workflow_result['errors']:
-                flash(f'⚠️ {error}', 'warning')
+        flash(f'Website de {username} gerado com sucesso!', 'success')
+        print("=== UPLOAD CONCLUÍDO COM SUCESSO ===")
+        return redirect(url_for('website', token=access_token))
 
-    # Garante que full_name existe
-    if 'full_name' not in resume_data or not resume_data['full_name']:
-        resume_data['full_name'] = username
+    except Exception as e:
+        print(f"[ERROR] Erro no upload: {e}")
+        print(f"[ERROR] Tipo: {type(e).__name__}")
+        import traceback
+        print(f"[ERROR] Traceback:\n{traceback.format_exc()}")
 
-    # Adiciona foto de perfil e cores aos dados
-    resume_data['profile_photo'] = profile_photo_path
-    resume_data['color_primary'] = color_scheme['primary']
-    resume_data['color_secondary'] = color_scheme['secondary']
-    resume_data['color_gradient'] = color_scheme['gradient']
-
-    # Guarda metadados
-    metadata = load_metadata()
-    new_entry = {
-        'id': len(metadata) + 1,
-        'username': username,
-        'filename': unique_filename,
-        'original_filename': filename,
-        'upload_date': datetime.now().isoformat(),
-        'access_token': access_token,
-        'resume_data': resume_data,
-        'profile_photo': profile_photo_path,
-        'color_scheme': color_scheme_name,
-        'processed': True
-    }
-    metadata.append(new_entry)
-    save_metadata(metadata)
-
-    flash(f'Website de {username} gerado com sucesso!', 'success')
-    return redirect(url_for('website', token=access_token))
+        flash(f'❌ Erro ao processar currículo: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 
 @app.route('/viewer/<token>')
