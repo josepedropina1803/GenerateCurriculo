@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Currículo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        header {
+            position: relative;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                position: static;
+                justify-content: center;
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Gerador de Currículo Web</h1>
+            <p class="subtitle">Carregue o seu currículo em PDF e visualize-o online</p>
+
+            {% if session.user %}
+            <div class="user-info">
+                <span class="user-name">👤 {{ session.user.name }}</span>
+                <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Sair</a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulário de Upload -->
+        <div class="upload-section">
+            <h2>Carregar Novo Currículo</h2>
+            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="upload-form">
+                <div class="form-group">
+                    <label for="username">Seu Nome:</label>
+                    <input type="text" id="username" name="username" required placeholder="Ex: João Silva">
+                </div>
+
+                <div class="form-group">
+                    <label for="pdf">Ficheiro PDF:</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="pdf" name="pdf" accept=".pdf" required>
+                        <span class="file-input-text">Escolher ficheiro...</span>
+                    </div>
+                    <small>Tamanho máximo: 16MB</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    📤 Carregar Currículo
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de Currículos -->
+        {% if curriculos %}
+        <div class="curriculos-section">
+            <h2>Currículos Carregados ({{ curriculos|length }})</h2>
+            <div class="curriculos-grid">
+                {% for curriculo in curriculos|reverse %}
+                <div class="curriculo-card">
+                    <div class="curriculo-header">
+                        <h3>{{ curriculo.username }}</h3>
+                        <span class="curriculo-date">{{ curriculo.upload_date[:10] }}</span>
+                    </div>
+                    <div class="curriculo-body">
+                        <p class="filename">📎 {{ curriculo.original_filename }}</p>
+                    </div>
+                    <div class="curriculo-actions">
+                        <a href="{{ url_for('website', token=curriculo.access_token) }}" class="btn btn-primary" style="flex: 2;">
+                            🌐 Ver Website
+                        </a>
+                        <a href="{{ url_for('viewer', token=curriculo.access_token) }}" class="btn btn-view" title="Ver PDF original">
+                            📄 PDF
+                        </a>
+                        <form action="{{ url_for('delete_curriculo', token=curriculo.access_token) }}" method="post" style="display: inline;" onsubmit="return confirm('Tem a certeza que deseja eliminar este currículo?');">
+                            <button type="submit" class="btn btn-delete">
+                                🗑️
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Nenhum currículo carregado ainda. Comece por carregar o primeiro!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>Gerador de Currículo Web &copy; 2025</p>
+    </footer>
+
+    <script>
+        // Atualiza o texto do input de ficheiro
+        const fileInput = document.getElementById('pdf');
+        const fileInputText = document.querySelector('.file-input-text');
+
+        fileInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Escolher ficheiro...';
+            fileInputText.textContent = fileName;
+        });
+    </script>
+</body>
+</html>

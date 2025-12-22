@@ -1,0 +1,383 @@
+/* Reset e Configurações Gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #667eea;
+    --primary-dark: #5568d3;
+    --secondary-color: #764ba2;
+    --success-color: #48bb78;
+    --danger-color: #f56565;
+    --warning-color: #ed8936;
+    --text-color: #2d3748;
+    --text-light: #718096;
+    --border-color: #e2e8f0;
+    --bg-light: #f7fafc;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+/* Mensagens Flash */
+.messages {
+    padding: 1rem 2rem;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-success {
+    background: #c6f6d5;
+    color: #22543d;
+    border-left: 4px solid var(--success-color);
+}
+
+.alert-error {
+    background: #fed7d7;
+    color: #742a2a;
+    border-left: 4px solid var(--danger-color);
+}
+
+.alert-success:before {
+    content: "✓";
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.alert-error:before {
+    content: "⚠";
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Seção de Upload */
+.upload-section {
+    padding: 2rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.upload-section h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+}
+
+.upload-form {
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* File Input Customizado */
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-input-text {
+    display: block;
+    padding: 0.75rem 1rem;
+    background: var(--bg-light);
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-input-wrapper:hover .file-input-text {
+    border-color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+small {
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+/* Botões */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+.btn-view {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-view:hover {
+    background: var(--primary-dark);
+}
+
+.btn-delete {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #e53e3e;
+}
+
+/* Seção de Currículos */
+.curriculos-section {
+    padding: 2rem;
+}
+
+.curriculos-section h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+}
+
+.curriculos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.curriculo-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.curriculo-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.curriculo-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.curriculo-header h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.curriculo-date {
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+.curriculo-body {
+    margin-bottom: 1rem;
+}
+
+.filename {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.curriculo-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.curriculo-actions .btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Estado Vazio */
+.empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+}
+
+/* Footer */
+footer {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-light);
+    margin-top: 2rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem 0.5rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .upload-section,
+    .curriculos-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .curriculos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .curriculo-actions {
+        flex-direction: column;
+    }
+
+    .curriculo-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 2rem 1rem;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.curriculo-card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Viewer Container */
+.viewer-container {
+    max-width: 100%;
+    margin: 0;
+}

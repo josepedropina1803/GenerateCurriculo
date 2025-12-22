@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currículo - {{ curriculo.username }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .viewer-container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .viewer-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewer-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+
+        .viewer-info {
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .viewer-actions {
+            background: #f8f9fa;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            height: calc(100vh - 250px);
+            border: none;
+            background: #525659;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .viewer-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-group {
+                width: 100%;
+            }
+
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container">
+        <div class="viewer-header">
+            <h1>Currículo de {{ curriculo.username }}</h1>
+            <div class="viewer-info">
+                <p>📎 {{ curriculo.original_filename }}</p>
+                <p>📅 Carregado em: {{ curriculo.upload_date[:10] }}</p>
+            </div>
+        </div>
+
+        <div class="viewer-actions">
+            <div class="btn-group">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    ⬅️ Voltar
+                </a>
+                <a href="{{ url_for('uploaded_file', filename=curriculo.filename) }}" download="{{ curriculo.original_filename }}" class="btn btn-primary">
+                    💾 Descarregar PDF
+                </a>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="toggleFullscreen()" class="btn btn-secondary" id="fullscreenBtn">
+                    🔍 Ecrã Completo
+                </button>
+                <form action="{{ url_for('delete_curriculo', token=curriculo.access_token) }}" method="post" style="display: inline;" onsubmit="return confirm('Tem a certeza que deseja eliminar este currículo? Esta ação não pode ser revertida.');">
+                    <button type="submit" class="btn btn-delete">
+                        🗑️ Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>A carregar o PDF...</p>
+        </div>
+
+        <iframe
+            id="pdfViewer"
+            class="pdf-viewer"
+            src="{{ url_for('uploaded_file', filename=curriculo.filename) }}#toolbar=1&navpanes=1&scrollbar=1"
+            title="Visualizador de PDF - {{ curriculo.username }}"
+            onload="hideLoading()"
+        ></iframe>
+    </div>
+
+    <script>
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function toggleFullscreen() {
+            const viewer = document.getElementById('pdfViewer');
+            const btn = document.getElementById('fullscreenBtn');
+
+            if (!document.fullscreenElement) {
+                viewer.requestFullscreen().then(() => {
+                    btn.textContent = '❌ Sair Ecrã Completo';
+                }).catch(err => {
+                    console.error('Erro ao entrar em ecrã completo:', err);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    btn.textContent = '🔍 Ecrã Completo';
+                });
+            }
+        }
+
+        // Atualiza o botão quando sair do fullscreen
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('fullscreenBtn');
+            if (!document.fullscreenElement) {
+                btn.textContent = '🔍 Ecrã Completo';
+            }
+        });
+
+        // Alternativa para navegadores que não suportam iframe com PDFs
+        window.addEventListener('load', () => {
+            const viewer = document.getElementById('pdfViewer');
+
+            // Verifica se o PDF foi carregado
+            setTimeout(() => {
+                if (viewer.contentDocument === null || viewer.contentDocument.body === null) {
+                    // PDF não carregou, mostra mensagem alternativa
+                    const loading = document.getElementById('loading');
+                    loading.innerHTML = `
+                        <p>O seu navegador não suporta visualização de PDFs.</p>
+                        <a href="{{ url_for('uploaded_file', filename=curriculo.filename) }}" download="{{ curriculo.original_filename }}" class="btn btn-primary">
+                            💾 Descarregar PDF para visualizar
+                        </a>
+                    `;
+                    loading.style.display = 'block';
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

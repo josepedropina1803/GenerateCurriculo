@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gerador de Currículo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .login-body {
+            padding: 2.5rem 2rem;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-form .btn {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1.05rem;
+            margin-top: 0.5rem;
+        }
+
+        .login-info {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .login-info h3 {
+            color: var(--text-color);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .login-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .login-info li {
+            padding: 0.5rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .login-info code {
+            background: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            padding: 0.25rem;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 Login</h1>
+            <p>Gerador de Currículo Web</p>
+        </div>
+
+        <div class="login-body">
+            <!-- Mensagens Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="post" class="login-form">
+                <div class="form-group">
+                    <label for="username">Nome de Utilizador:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        required
+                        placeholder="Digite seu username"
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Palavra-passe:</label>
+                    <div class="password-toggle">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            placeholder="Digite sua senha"
+                        >
+                        <button
+                            type="button"
+                            class="password-toggle-btn"
+                            onclick="togglePassword()"
+                            title="Mostrar/Ocultar senha"
+                        >
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    🚀 Entrar
+                </button>
+            </form>
+
+            <div class="login-info">
+                <h3>🧪 Credenciais de teste:</h3>
+                <ul>
+                    <li><strong>Admin:</strong> <code>admin</code> / <code>admin123</code></li>
+                    <li><strong>Utilizador:</strong> <code>pedro</code> / <code>senha123</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle-btn');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // Permite usar Enter para submeter o formulário
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.target.form.submit();
+            }
+        });
+    </script>
+</body>
+</html>
