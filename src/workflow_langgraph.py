@@ -77,25 +77,8 @@ def analyze_and_summarize_node(state: ResumeWorkflowState) -> ResumeWorkflowStat
         state['analyzed_data'] = {}
         return state
 
-    try:
-        llm = get_llm(temperature=0.3)
-    except Exception as e:
-        print(f"   ⚠️ Erro ao inicializar LLM: {e}")
-        print("   ℹ️ Usando modo fallback sem IA")
-        state['errors'].append("API de IA não configurada - usando modo básico")
-        state['analyzed_data'] = {
-            "full_name": "Profissional",
-            "professional_title": "Profissional Qualificado",
-            "about_summary": "Profissional experiente disponível para novas oportunidades.",
-            "experience_summary": "Experiência comprovada em diversas áreas.",
-            "education_summary": "Formação académica sólida.",
-            "skills_summary": "Competências técnicas e interpessoais.",
-            "experience_items": [],
-            "education_items": [],
-            "skills": []
-        }
-        state['processing_stage'] = "Currículo processado (modo básico)"
-        return state
+    # Inicializa LLM (Groq ou Ollama)
+    llm = get_llm(temperature=0.3)
 
     system_prompt = """You are an expert resume analyzer. Extract information and create CONCISE summaries for each section.
 
