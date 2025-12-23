@@ -3,9 +3,13 @@ import json
 import secrets
 from datetime import datetime
 from functools import wraps
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
 from src.workflow_langgraph import process_resume_with_langgraph
 from werkzeug.utils import secure_filename
+
+# Carrega variáveis do ficheiro .env
+load_dotenv()
 
 
 
@@ -258,28 +262,22 @@ def upload_file():
         print(f"[DEBUG] Workflow concluído: {workflow_result.get('success')}")
 
         if not workflow_result['success']:
-            flash(f'❌ Erro no workflow: {workflow_result.get("error")}', 'error')
-            # Fallback para dados básicos
-            resume_data = {
-                'full_name': username,
-                'professional_title': 'Profissional',
-                'about_summary': 'Profissional qualificado.',
-                'experience_summary': 'Experiência profissional.',
-                'education_summary': 'Formação académica.',
-                'skills_summary': 'Competências técnicas.',
-                'experience_items': [],
-                'education_items': [],
-                'skills': []
-            }
-        else:
-            # Extrai dados do website gerado pelo workflow
-            website_structure = workflow_result['website_structure']
-            resume_data = website_structure.get('data', {})
+            # IA é obrigatória - remove o PDF e retorna erro
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            error_msg = workflow_result.get('error', 'Erro desconhecido no processamento')
+            flash(f'❌ Erro ao processar currículo com IA: {error_msg}', 'error')
+            flash('💡 Verifique se a API GROQ_API_KEY está configurada corretamente.', 'info')
+            return redirect(url_for('index'))
 
-            # Mostra avisos se houver
-            if workflow_result.get('errors'):
-                for error in workflow_result['errors']:
-                    flash(f'⚠️ {error}', 'warning')
+        # Extrai dados do website gerado pelo workflow
+        website_structure = workflow_result['website_structure']
+        resume_data = website_structure.get('data', {})
+
+        # Mostra avisos se houver
+        if workflow_result.get('errors'):
+            for error in workflow_result['errors']:
+                flash(f'⚠️ {error}', 'warning')
 
         # Garante que full_name existe
         if 'full_name' not in resume_data or not resume_data['full_name']:
@@ -390,6 +388,49 @@ def delete_curriculo(token):
 def uploaded_photo(filename):
     """Serve as fotos de perfil"""
     return send_from_directory(app.config['PHOTOS_FOLDER'], filename)
+
+
+@app.route('/debug/config')
+@login_required
+def debug_config():
+    """Endpoint de debug para verificar configuração do LLM"""
+    groq_key = os.getenv('GROQ_API_KEY')
+
+    config_info = {
+        'llm_provider': 'GROQ (Cloud)' if groq_key else 'OLLAMA (Local)',
+        'groq_configured': bool(groq_key),
+        'groq_key_preview': f"{groq_key[:8]}...{groq_key[-4:]}" if groq_key else None,
+        'ollama_url': 'http://localhost:11434' if not groq_key else None,
+        'model': 'llama-3.3-70b-versatile' if groq_key else 'llama3',
+    }
+
+    return f"""
+    <html>
+    <head><title>Debug - Configuração LLM</title></head>
+    <body style="font-family: monospace; padding: 20px; background: #1a1a2e; color: #eee;">
+        <h1>🔧 Debug - Configuração do LLM</h1>
+        <hr>
+        <h2>Provider: <span style="color: {'#4ade80' if groq_key else '#fbbf24'}">
+            {config_info['llm_provider']}</span></h2>
+        <ul>
+            <li><b>GROQ_API_KEY configurada:</b> {'✅ Sim' if groq_key else '❌ Não'}</li>
+            <li><b>Modelo:</b> {config_info['model']}</li>
+            {'<li><b>API Key:</b> ' + config_info['groq_key_preview'] + '</li>' if groq_key else ''}
+            {'<li><b>Ollama URL:</b> ' + config_info['ollama_url'] + '</li>' if not groq_key else ''}
+        </ul>
+        <hr>
+        <h3>Como configurar GROQ:</h3>
+        <pre style="background: #2d2d44; padding: 10px;">
+# Linux/Mac:
+export GROQ_API_KEY="gsk_xxxxxx"
+
+# Ou criar ficheiro .env:
+GROQ_API_KEY=gsk_xxxxxx
+        </pre>
+        <p><a href="/" style="color: #60a5fa;">← Voltar</a></p>
+    </body>
+    </html>
+    """
 
 
 if __name__ == '__main__':

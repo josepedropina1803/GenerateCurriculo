@@ -8,3 +8,4 @@ langgraph==0.2.59
 langchain-ollama==0.2.1
 langchain-groq==0.2.1
 gunicorn==21.2.0
+python-dotenv==1.0.0

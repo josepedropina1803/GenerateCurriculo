@@ -33,13 +33,24 @@ def get_llm(temperature: float = 0.3):
     if groq_api_key:
         # Usa Groq em produção
         from langchain_groq import ChatGroq
+        print("=" * 50)
+        print("🤖 LLM: GROQ (Cloud)")
+        print(f"   Modelo: llama-3.3-70b-versatile")
+        print(f"   API Key: {groq_api_key[:8]}...{groq_api_key[-4:]}")
+        print("=" * 50)
         return ChatGroq(
-            model="llama-3.3-70b-versatile",  # Modelo atualizado
+            model="llama-3.3-70b-versatile",
             temperature=temperature,
             groq_api_key=groq_api_key
         )
     else:
         # Usa Ollama localmente
+        print("=" * 50)
+        print("🤖 LLM: OLLAMA (Local)")
+        print(f"   Modelo: llama3")
+        print(f"   URL: http://localhost:11434")
+        print("   ⚠️  GROQ_API_KEY não configurada!")
+        print("=" * 50)
         return ChatOllama(
             model="llama3",
             temperature=temperature,
@@ -126,34 +137,53 @@ Keep summaries CONCISE and PROFESSIONAL. Focus on impact and achievements."""
 
     user_prompt = f"Currículo completo:\n\n{state['pdf_text']}"
 
+    raw_content = ""
     try:
         messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=user_prompt)
         ]
 
+        print("   📤 Enviando para LLM...")
         response = llm.invoke(messages)
-        result = json.loads(response.content)
+        raw_content = response.content
+
+        print(f"   📥 Resposta recebida ({len(raw_content)} chars)")
+        print(f"   📥 Preview: {raw_content[:200]}..." if len(raw_content) > 200 else f"   📥 Resposta: {raw_content}")
+
+        # Tenta extrair JSON da resposta (pode vir com texto extra)
+        json_content = raw_content
+        if '```json' in raw_content:
+            json_content = raw_content.split('```json')[1].split('```')[0]
+        elif '```' in raw_content:
+            json_content = raw_content.split('```')[1].split('```')[0]
+        elif '{' in raw_content:
+            # Encontra o primeiro { e o último }
+            start = raw_content.find('{')
+            end = raw_content.rfind('}') + 1
+            if start != -1 and end > start:
+                json_content = raw_content[start:end]
+
+        result = json.loads(json_content.strip())
 
         state['analyzed_data'] = result
         print(f"   ✓ Analisado: {result.get('full_name', 'N/A')}")
+        state['processing_stage'] = "Currículo analisado"
 
+    except json.JSONDecodeError as e:
+        print(f"   ✗ Erro ao parsear JSON: {e}")
+        print(f"   ✗ Conteúdo recebido: {raw_content[:500] if raw_content else 'VAZIO'}")
+        state['errors'].append(f"Resposta inválida do LLM (não é JSON)")
+        state['analyzed_data'] = {}
+        state['processing_stage'] = "Erro na análise"
+        raise RuntimeError(f"Resposta do LLM não é JSON válido: {str(e)}")
     except Exception as e:
-        print(f"   ✗ Erro: {e}")
-        state['errors'].append(f"Erro na análise: {str(e)}")
-        state['analyzed_data'] = {
-            "full_name": "Profissional",
-            "professional_title": "Profissional Qualificado",
-            "about_summary": "Profissional experiente com histórico comprovado de excelência.",
-            "experience_summary": "Experiência sólida em diversas áreas.",
-            "education_summary": "Formação académica sólida.",
-            "skills_summary": "Competências diversificadas.",
-            "experience_items": [],
-            "education_items": [],
-            "skills": []
-        }
+        print(f"   ✗ Erro na análise com IA: {e}")
+        state['errors'].append(f"Erro na análise com IA: {str(e)}")
+        state['analyzed_data'] = {}
+        state['processing_stage'] = "Erro na análise"
+        raise RuntimeError(f"Falha ao processar currículo com IA: {str(e)}")
 
-    state['processing_stage'] = "Currículo analisado"
     return state
 
 
